@@ -11,8 +11,8 @@ jobs:
 
     env:
       OWNER: drienas
-      REPO: acrm_custsync
-      PACKAGE: dsg-acrm_custsync
+      REPO: acrm_custapi
+      PACKAGE: dsg-acrm_custapi
 
     steps:
       - uses: actions/checkout@v2
