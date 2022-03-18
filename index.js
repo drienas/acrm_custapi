@@ -39,7 +39,7 @@ const app = express();
 const requestBody = (q) => ({
   query: {
     query_string: {
-      query: `*${q}`,
+      query: `*${q}*`,
       fields: ['telefon', 'mobil', 'mp2', 'p2'],
     },
   },
