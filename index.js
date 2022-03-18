@@ -45,7 +45,7 @@ const requestBody = (q) => ({
   },
 });
 
-app.use(morgan('dev'));
+app.use(morgan('[:date] :method :url :status - :response-time ms'));
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -79,6 +79,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
       res.status(400).json({
         status: 'BAD REQUEST',
         message: "Can't resolve target function",
+        body,
       });
       return;
     }
@@ -87,6 +88,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
       res.status(400).json({
         status: 'BAD REQUEST',
         message: 'Data cannot be empty',
+        body,
       });
       return;
     }
@@ -95,6 +97,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
       res.status(400).json({
         status: 'BAD REQUEST',
         message: 'Dataset for <anrufer> cannot be empty',
+        body,
       });
       return;
     }
@@ -118,6 +121,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
           res.status(500).json({
             status: 'INTERNAL SERVER ERROR',
             message: `Database server responded with status code ${response.status}`,
+            body,
           });
           return;
         }
@@ -145,6 +149,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
         res.status(500).json({
           status: 'INTERNAL SERVER ERROR',
           message: 'An unexpected error occured',
+          body,
         });
       });
   } catch (err) {
@@ -152,6 +157,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
     res.status(500).json({
       status: 'INTERNAL SERVER ERROR',
       message: 'An unexpected error occured',
+      body,
     });
   }
 });
