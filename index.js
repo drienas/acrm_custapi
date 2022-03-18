@@ -81,6 +81,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
         message: "Can't resolve target function",
         body,
       });
+      console.log(`400 - Body: ${body}`);
       return;
     }
 
@@ -90,6 +91,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
         message: 'Data cannot be empty',
         body,
       });
+      console.log(`400 - Body: ${body}`);
       return;
     }
 
@@ -99,6 +101,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
         message: 'Dataset for <anrufer> cannot be empty',
         body,
       });
+      console.log(`400 - Body: ${body}`);
       return;
     }
 
@@ -110,7 +113,9 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
         status: 'BAD REQUEST',
         message:
           '<anrufer> must not contain non-digit characters except a leading +',
+        body,
       });
+      console.log(`400 - Body: ${body}`);
       return;
     }
 
