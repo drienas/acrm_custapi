@@ -106,7 +106,7 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
     }
 
     let number = body.data.anrufer;
-    number = number.replace('+49', '').replace('+', '');
+    number = number.replace(/(\+49)|[+-]/g, '');
 
     if (/[^\d]/gi.test(number)) {
       res.status(400).json({
