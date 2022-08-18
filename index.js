@@ -254,12 +254,14 @@ app.post('/acrm-cust/live', (req, res) => {
         // let data = {};
 
         hits = hits.map((x) => {
+          console.log(x);
           let data = {};
           x.name = x.nachname;
           for (let i of DATAFIELDS) {
             if (x[i]) data[i] = x[i];
           }
           data['x-id-kontakt'] = x.kundennummer;
+          console.log(data);
           return data;
         });
 
