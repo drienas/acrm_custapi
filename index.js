@@ -12,7 +12,7 @@ const DATAFIELDS = [
   'kundennummer',
   'anrede',
   'vorname',
-  'nachname',
+  'name',
   'strasse',
   'plz',
   'ort',
@@ -32,7 +32,8 @@ if (!ELASTIC_URL) {
   process.exit(0);
 }
 
-const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
+// const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
+const ElasticIndex = `${ELASTIC_URL}/customers/_search`;
 
 const app = express();
 
@@ -139,10 +140,139 @@ app.post('/acrm-cust/callCustomerSearch', (req, res) => {
 
         if (hits.length > 0) {
           hits = hits[0]._source;
+          hits.name = hits.nachname;
           for (let i of DATAFIELDS) {
             if (hits[i]) data[i] = hits[i];
           }
         }
+
+        res.status(200).json({
+          status: 'OK',
+          data,
+        });
+      })
+      .catch((err) => {
+        console.error(new Error(err));
+        res.status(500).json({
+          status: 'INTERNAL SERVER ERROR',
+          message: 'An unexpected error occured',
+          body,
+        });
+      });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: 'INTERNAL SERVER ERROR',
+      message: 'An unexpected error occured',
+      body,
+    });
+  }
+});
+
+app.post('/acrm-cust/live', (req, res) => {
+  try {
+    let body = req.body;
+
+    if (body.function !== 'SucheKontakte') {
+      res.status(400).json({
+        status: 'BAD REQUEST',
+        message: "Can't resolve target function",
+        body,
+      });
+      console.log(`400 - Body: ${JSON.stringify(body)}`);
+      return;
+    }
+
+    if (!body.data) {
+      res.status(400).json({
+        status: 'BAD REQUEST',
+        message: 'Data cannot be empty',
+        body,
+      });
+      console.log(`400 - Body: ${JSON.stringify(body)}`);
+      return;
+    }
+
+    let data = body.data;
+    let should = [];
+
+    if (!!data.kundennummer)
+      should.push({ fuzzy: { kundennummer: { value: data.kundennummer } } });
+    if (!!data.rufnummer1) {
+      let fuzzys = [];
+      let value = data.rufnummer1;
+      for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
+        fuzzys.push({ [v]: { value } });
+      for (let fuzzy of fuzzys) should.push({ fuzzy });
+    }
+    if (!!data.rufnummer2) {
+      let fuzzys = [];
+      let value = data.rufnummer2;
+      for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
+        fuzzys.push({ [v]: { value } });
+      for (let fuzzy of fuzzys) should.push({ fuzzy });
+    }
+    if (!!data.email)
+      should.push({
+        fuzzy: { 'email.keyword': { value: data.email } },
+      });
+    if (!!data.vorname)
+      should.push({ fuzzy: { vorname: { value: data.vorname } } });
+    if (!!data.nachname)
+      should.push({ fuzzy: { nachname: { value: data.nachname } } });
+    if (!!data.firma)
+      should.push({ fuzzy: { nachname: { value: data.nachname } } });
+
+    console.log(should);
+
+    let request = {
+      query: {
+        bool: {
+          should,
+          minimum_should_match: 1,
+        },
+      },
+    };
+
+    axios
+      .post(ElasticIndex, request)
+      .then((response) => {
+        if (response.status !== 200) {
+          res.status(500).json({
+            status: 'INTERNAL SERVER ERROR',
+            message: `Database server responded with status code ${response.status}`,
+            body,
+          });
+          return;
+        }
+
+        let dt = response.data;
+
+        let hits = dt.hits.hits;
+        if (!Array.isArray(hits)) throw `Hits is not an array`;
+
+        // let data = {};
+
+        hits = hits.map((x) => {
+          let data = {};
+          x.name = x.nachname;
+          for (let i of DATAFIELDS) {
+            if (x[i]) data[i] = x[i];
+          }
+          data['x-id-kontakt'] = x.kundennummer;
+          return data;
+        });
+
+        // if (hits.length > 0) {
+        //   hits = hits[0]._source;
+        //   for (let i of DATAFIELDS) {
+        //     if (hits[i]) data[i] = hits[i];
+        //   }
+        // }
+
+        // hits = data.map((x) => ({ 'x-id-kontakt': x.kundennummer, ...x }));
+
+        data = { liste: hits };
 
         res.status(200).json({
           status: 'OK',
