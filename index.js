@@ -32,8 +32,8 @@ if (!ELASTIC_URL) {
   process.exit(0);
 }
 
-// const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
-const ElasticIndex = `${ELASTIC_URL}/customers/_search`;
+const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
+// const ElasticIndex = `${ELASTIC_URL}/customers/_search`;
 
 const app = express();
 
