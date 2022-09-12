@@ -46,6 +46,25 @@ if (!ELASTIC_URL) {
   process.exit(0);
 }
 
+const standardize = (x) => {
+  let data = {};
+  x.name = x.nachname;
+  if (x.anrede) x.anrede = x.anrede.slice(0, 3);
+  if (
+    x.land &&
+    !!COUNTRIES.find((y) => y.name.toLowerCase() === x.land.toLowerCase())
+  )
+    x.land = COUNTRIES.find(
+      (y) => y.name.toLowerCase() === x.land.toLowerCase()
+    ).alpha2.toUpperCase();
+  else x.land = null;
+  x.kundennummer = String(x.kundennummer);
+  for (let i of DATAFIELDS) {
+    if (x[i]) data[i] = x[i];
+  }
+  return data;
+};
+
 const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
 
 const app = express();
@@ -270,24 +289,6 @@ app.post('/acrm-cust/live', (req, res) => {
         },
       };
 
-      const standardize = (x) => {
-        x.name = x.nachname;
-        if (x.anrede) x.anrede = x.anrede.slice(0, 3);
-        if (
-          x.land &&
-          !!COUNTRIES.find((y) => y.name.toLowerCase() === x.land.toLowerCase())
-        )
-          x.land = COUNTRIES.find(
-            (y) => y.name.toLowerCase() === x.land.toLowerCase()
-          ).alpha2.toUpperCase();
-        else x.land = null;
-        x.kundennummer = String(x.kundennummer);
-        for (let i of DATAFIELDS) {
-          if (x[i]) data[i] = x[i];
-        }
-        return x;
-      };
-
       axios
         .post(ElasticIndex, request)
         .then((response) => {
@@ -308,7 +309,7 @@ app.post('/acrm-cust/live', (req, res) => {
           hits = hits.map((x) => {
             x = x._source;
             let data = {};
-            x = standardize(x);
+            data = standardize(x);
             data['x-id-kontakt'] = x.kundennummer;
             return data;
           });
@@ -377,7 +378,7 @@ app.post('/acrm-cust/live', (req, res) => {
 
           if (hits.length > 0) {
             hits = hits[0]._source;
-            hits = standardize(hits);
+            data = standardize(hits);
             data['x-id-kontakt'] = hits.kundennummer;
             for (let i of DATAFIELDS) {
               if (hits[i]) data[i] = hits[i];
