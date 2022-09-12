@@ -256,7 +256,7 @@ app.post('/acrm-cust/live', (req, res) => {
     if (body.function === 'SucheKontakte') {
       let should = [];
       if (!!data.kundennummer)
-        should.push({ match: { kundennummer: [data.kundennummer] } });
+        should.push({ match: { kundennummer: data.kundennummer } });
       if (!!data.rufnummer1) {
         let fuzzys = [];
         let value = data.rufnummer1;
