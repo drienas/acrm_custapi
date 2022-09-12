@@ -49,6 +49,8 @@ if (!ELASTIC_URL) {
 const standardize = (x) => {
   let data = {};
   x.name = x.nachname;
+  if (x.telefon && !/^\+\d{8,}$/.test(x.telefon)) x.telefon = null;
+  if (x.mobil && !/^\+\d{8,}$/.test(x.mobil)) x.mobil = null;
   if (x.anrede) x.anrede = x.anrede.slice(0, 4);
   if (
     x.land &&
