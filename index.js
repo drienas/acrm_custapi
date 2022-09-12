@@ -49,7 +49,7 @@ if (!ELASTIC_URL) {
 const standardize = (x) => {
   let data = {};
   x.name = x.nachname;
-  if (x.anrede) x.anrede = x.anrede.slice(0, 3);
+  if (x.anrede) x.anrede = x.anrede.slice(0, 4);
   if (
     x.land &&
     !!COUNTRIES.find((y) => y.name.toLowerCase() === x.land.toLowerCase())
