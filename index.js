@@ -20,6 +20,8 @@ const morgan = require('morgan');
 const axios = require('axios');
 const cors = require('cors');
 
+const COUNTRIES = require('./countries.json');
+
 const DATAFIELDS = [
   'kundennummer',
   'anrede',
@@ -233,7 +235,7 @@ app.post('/acrm-cust/live', (req, res) => {
     if (body.function === 'SucheKontakte') {
       let should = [];
       if (!!data.kundennummer)
-        should.push({ fuzzy: { kundennummer: { value: data.kundennummer } } });
+        should.push({ match: { kundennummer: [data.kundennummer] } });
       if (!!data.rufnummer1) {
         let fuzzys = [];
         let value = data.rufnummer1;
@@ -268,6 +270,24 @@ app.post('/acrm-cust/live', (req, res) => {
         },
       };
 
+      const standardize = (x) => {
+        x.name = x.nachname;
+        if (x.anrede) x.anrede = x.anrede.slice(0, 3);
+        if (
+          x.land &&
+          !!COUNTRIES.find((y) => y.name.toLowerCase() === x.land.toLowerCase())
+        )
+          x.land = COUNTRIES.find(
+            (y) => y.name.toLowerCase() === x.land.toLowerCase()
+          ).alpha2.toUpperCase();
+        else x.land = null;
+        x.kundennummer = String(x.kundennummer);
+        for (let i of DATAFIELDS) {
+          if (x[i]) data[i] = x[i];
+        }
+        return x;
+      };
+
       axios
         .post(ElasticIndex, request)
         .then((response) => {
@@ -288,10 +308,7 @@ app.post('/acrm-cust/live', (req, res) => {
           hits = hits.map((x) => {
             x = x._source;
             let data = {};
-            x.name = x.nachname;
-            for (let i of DATAFIELDS) {
-              if (x[i]) data[i] = x[i];
-            }
+            x = standardize(x);
             data['x-id-kontakt'] = x.kundennummer;
             return data;
           });
@@ -360,7 +377,7 @@ app.post('/acrm-cust/live', (req, res) => {
 
           if (hits.length > 0) {
             hits = hits[0]._source;
-            hits.name = hits.nachname;
+            hits = standardize(hits);
             data['x-id-kontakt'] = hits.kundennummer;
             for (let i of DATAFIELDS) {
               if (hits[i]) data[i] = hits[i];
