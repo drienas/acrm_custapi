@@ -255,6 +255,33 @@ app.post('/acrm-cust/live', (req, res) => {
 
     if (body.function === 'SucheKontakte') {
       let should = [];
+      // if (!!data.kundennummer)
+      //   should.push({ match: { kundennummer: data.kundennummer } });
+      // if (!!data.rufnummer1) {
+      //   let fuzzys = [];
+      //   let value = data.rufnummer1;
+      //   for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
+      //     fuzzys.push({ [v]: { value } });
+      //   for (let fuzzy of fuzzys) should.push({ fuzzy });
+      // }
+      // if (!!data.rufnummer2) {
+      //   let fuzzys = [];
+      //   let value = data.rufnummer2;
+      //   for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
+      //     fuzzys.push({ [v]: { value } });
+      //   for (let fuzzy of fuzzys) should.push({ fuzzy });
+      // }
+      // if (!!data.email)
+      //   should.push({
+      //     fuzzy: { 'email.keyword': { value: data.email } },
+      //   });
+      // if (!!data.vorname)
+      //   should.push({ fuzzy: { vorname: { value: data.vorname } } });
+      // if (!!data.nachname)
+      //   should.push({ fuzzy: { nachname: { value: data.nachname } } });
+      // if (!!data.firma)
+      //   should.push({ fuzzy: { nachname: { value: data.nachname } } });
+
       if (!!data.kundennummer)
         should.push({ match: { kundennummer: data.kundennummer } });
       if (!!data.rufnummer1) {
@@ -262,25 +289,25 @@ app.post('/acrm-cust/live', (req, res) => {
         let value = data.rufnummer1;
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
           fuzzys.push({ [v]: { value } });
-        for (let fuzzy of fuzzys) should.push({ fuzzy });
+        for (let match of fuzzys) should.push({ match });
       }
       if (!!data.rufnummer2) {
         let fuzzys = [];
         let value = data.rufnummer2;
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
           fuzzys.push({ [v]: { value } });
-        for (let fuzzy of fuzzys) should.push({ fuzzy });
+        for (let match of fuzzys) should.push({ match });
       }
       if (!!data.email)
         should.push({
-          fuzzy: { 'email.keyword': { value: data.email } },
+          match: { 'email.keyword': { value: data.email } },
         });
       if (!!data.vorname)
-        should.push({ fuzzy: { vorname: { value: data.vorname } } });
+        should.push({ match: { vorname: { value: data.vorname } } });
       if (!!data.nachname)
-        should.push({ fuzzy: { nachname: { value: data.nachname } } });
+        should.push({ match: { nachname: { value: data.nachname } } });
       if (!!data.firma)
-        should.push({ fuzzy: { nachname: { value: data.nachname } } });
+        should.push({ match: { nachname: { value: data.nachname } } });
 
       let request = {
         query: {
