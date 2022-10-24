@@ -288,26 +288,23 @@ app.post('/acrm-cust/live', (req, res) => {
         let fuzzys = [];
         let value = data.rufnummer1;
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
-          fuzzys.push({ [v]: { value } });
+          fuzzys.push({ [v]: value });
         for (let match of fuzzys) should.push({ match });
       }
       if (!!data.rufnummer2) {
         let fuzzys = [];
         let value = data.rufnummer2;
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
-          fuzzys.push({ [v]: { value } });
+          fuzzys.push({ [v]: value });
         for (let match of fuzzys) should.push({ match });
       }
       if (!!data.email)
         should.push({
-          match: { 'email.keyword': { value: data.email } },
+          match: { 'email.keyword': data.email },
         });
-      if (!!data.vorname)
-        should.push({ match: { vorname: { value: data.vorname } } });
-      if (!!data.nachname)
-        should.push({ match: { nachname: { value: data.nachname } } });
-      if (!!data.firma)
-        should.push({ match: { nachname: { value: data.nachname } } });
+      if (!!data.vorname) should.push({ match: { vorname: data.vorname } });
+      if (!!data.nachname) should.push({ match: { nachname: data.nachname } });
+      if (!!data.firma) should.push({ match: { nachname: data.nachname } });
 
       let request = {
         query: {
@@ -318,9 +315,12 @@ app.post('/acrm-cust/live', (req, res) => {
         },
       };
 
+      // console.log(JSON.stringify(request, null, 2));
+
       axios
         .post(ElasticIndex, request)
         .then((response) => {
+          console.error(response);
           if (response.status !== 200) {
             res.status(500).json({
               status: 'INTERNAL SERVER ERROR',
