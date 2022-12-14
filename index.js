@@ -287,6 +287,7 @@ app.post('/acrm-cust/live', (req, res) => {
       if (!!data.rufnummer1) {
         let fuzzys = [];
         let value = data.rufnummer1;
+        value = value.replace(/\s/, '');
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
           fuzzys.push({ [v]: value });
         for (let match of fuzzys) should.push({ match });
@@ -294,6 +295,7 @@ app.post('/acrm-cust/live', (req, res) => {
       if (!!data.rufnummer2) {
         let fuzzys = [];
         let value = data.rufnummer2;
+        value = value.replace(/\s/, '');
         for (let v of ['telefon', 'mobil', 'mp2', 'p2'])
           fuzzys.push({ [v]: value });
         for (let match of fuzzys) should.push({ match });
