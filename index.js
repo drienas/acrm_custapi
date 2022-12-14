@@ -67,7 +67,7 @@ const standardize = (x) => {
   return data;
 };
 
-const ElasticIndex = `${ELASTIC_URL}/acrm_custsync/_search`;
+const ElasticIndex = `${ELASTIC_URL}/customers/_search`;
 
 const app = express();
 
